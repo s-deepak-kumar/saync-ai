@@ -5,21 +5,38 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: '#FAFAF7',
-        ink:        '#0F172A',
-        muted:      '#64748B',
-        label:      '#94A3B8',
-        terracotta: '#D4502A',
+        background: '#FAFAF7',     // warm off-white
+        canvas:     '#F3F2EE',     // slightly darker tone for striped backgrounds
+        ink:        '#0F172A',     // primary text
+        muted:      '#475569',     // body text — a touch darker than slate-500 for density
+        label:      '#94A3B8',     // tiny ALL CAPS labels
+        terracotta: '#D4502A',     // accent
+        terraDark:  '#A53A1E',     // hover state
         card:       '#FFFFFF',
-        border:     '#E2E8F0',
+        border:     '#E5E7EB',
+        rule:       '#CBD5E1',     // stronger dividers
         zebra:      '#F8F9FA',
+        codeBg:     '#0B1220',     // a touch darker than ink for code blocks
+        sevPass:    '#0E7C66',
+        sevFail:    '#B91C1C',
       },
       fontFamily: {
-        fraunces: ['var(--font-fraunces)', 'serif'],
-        inter:    ['var(--font-inter)', 'sans-serif'],
-        mono:     ['var(--font-jetbrains-mono)', 'monospace'],
+        sans:  ['var(--font-plex-sans)', 'system-ui', 'sans-serif'],
+        serif: ['var(--font-plex-serif)', 'Georgia', 'serif'],
+        mono:  ['var(--font-plex-mono)', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },
-      letterSpacing: { tighter: '-0.02em', wider: '0.08em' },
+      letterSpacing: {
+        tighter: '-0.02em',
+        tight:   '-0.012em',
+        wider:   '0.1em',
+      },
+      borderRadius: {
+        // IBM Plex / Carbon-ish — sharper corners
+        sm: '2px',
+        DEFAULT: '4px',
+        md: '6px',
+        lg: '8px',
+      },
     },
   },
 } satisfies Config;

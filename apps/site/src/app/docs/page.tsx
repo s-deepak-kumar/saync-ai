@@ -6,7 +6,7 @@ export const metadata = { title: 'Saync — Docs' };
 export default function Docs() {
   return (
     <div className="max-w-[820px] mx-auto px-6 py-16">
-      <h1 className="font-fraunces text-[44px] leading-none tracking-tighter mb-6">Documentation</h1>
+      <h1 className="font-serif text-[44px] leading-none tracking-tight mb-6">Documentation</h1>
       <p className="text-[14px] text-muted leading-relaxed mb-8">
         Saync is one npm package that ships an SDK, a Playwright-driven agent, a SQLite store, and a dashboard — all running locally inside your project. Everything below assumes Node 18+ and any package manager (npm / pnpm / yarn / bun).
       </p>
@@ -20,7 +20,7 @@ export default function Docs() {
           <Sparkles size={18} />
         </div>
         <div className="flex-1 min-w-0">
-          <h2 className="font-fraunces text-[18px] tracking-tighter mb-1">
+          <h2 className="font-serif text-[18px] tracking-tight mb-1">
             Building with an AI assistant?
           </h2>
           <p className="text-[12.5px] text-muted leading-relaxed mb-3 max-w-[520px]">
@@ -169,7 +169,7 @@ ANTHROPIC_API_KEY=...`} />
 function Section({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
   return (
     <section id={id} className="mb-12">
-      <h2 className="font-fraunces text-[24px] tracking-tighter mb-3 scroll-mt-20">
+      <h2 className="font-serif text-[24px] tracking-tight mb-3 scroll-mt-20">
         <a href={`#${id}`} className="hover:text-terracotta transition-colors">{title}</a>
       </h2>
       {children}

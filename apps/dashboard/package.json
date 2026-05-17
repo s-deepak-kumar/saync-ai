@@ -1,26 +1,98 @@
 {
-  "name": "@saync/dashboard",
+  "name": "saync-web",
   "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+  "description": "Local-first QA platform. Declare contracts on your UI components, verify them automatically, see failures in a dashboard. No SaaS, no signup, no telemetry.",
+  "license": "MIT",
+  "type": "module",
+  "author": "S Deepak Kumar <dipkfilms@gmail.com>",
+  "homepage": "https://github.com/s-deepak-kumar/saync-ai#readme",
+  "bugs": {
+    "url": "https://github.com/s-deepak-kumar/saync-ai/issues"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/s-deepak-kumar/saync-ai.git",
+    "directory": "apps/dashboard"
+  },
+  "keywords": [
+    "saync",
+    "qa",
+    "testing",
+    "playwright",
+    "react",
+    "contracts",
+    "expectations",
+    "local-first",
+    "self-hosted",
+    "dashboard"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "dev": "next dev -p 3777",
+    "build": "next build && node scripts/postbuild.mjs",
+    "start": "next start -p 3777",
+    "lint": "next lint",
+    "db:generate": "drizzle-kit generate",
+    "prepublishOnly": "next build && node scripts/postbuild.mjs"
+  },
+  "bin": {
+    "saync": "./bin/saync.mjs"
+  },
+  "main": "./sdk/index.js",
+  "types": "./sdk/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./sdk/index.d.ts",
+      "import": "./sdk/index.js"
+    },
+    "./react": {
+      "types": "./sdk/react.d.ts",
+      "import": "./sdk/react.js"
+    },
+    "./agent": {
+      "types": "./sdk/agent.d.ts",
+      "import": "./sdk/agent.js"
+    }
+  },
+  "files": [
+    "bin",
+    "cli",
+    "sdk",
+    "drizzle",
+    ".next/standalone",
+    ".next/static",
+    "public",
+    "next.config.mjs",
+    "README.md",
+    "LICENSE"
+  ],
   "dependencies": {
+    "@saync/agent": "workspace:*",
+    "@saync/core": "workspace:*",
+    "@saync/react": "workspace:*",
+    "better-sqlite3": "^11.7.0",
+    "chokidar": "^4.0.1",
+    "drizzle-orm": "^0.36.4",
+    "gray-matter": "^4.0.3",
+    "jiti": "^2.4.0",
+    "lucide-react": "^1.16.0",
     "next": "^14.2.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
-    "gray-matter": "^4.0.3"
+    "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
     "@types/node": "^20.0.0",
     "@types/react": "^18.3.0",
     "@types/react-dom": "^18.3.0",
     "autoprefixer": "^10.4.19",
+    "drizzle-kit": "^0.28.1",
     "postcss": "^8.4.38",
     "tailwindcss": "^3.4.3",
+    "tsx": "^4.19.2",
     "typescript": "^5.4.5"
   }
 }

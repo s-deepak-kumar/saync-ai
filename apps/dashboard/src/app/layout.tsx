@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
-import "./globals.css";
 import Sidebar from "@/components/Sidebar";
+import "./globals.css";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -23,23 +23,21 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Saync Dashboard",
-  description: "Visual testing dashboard for Saync",
+  title: "Saync",
+  description: "Verify what your app should do, automatically.",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
       <body
-        className={`${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable} font-inter antialiased`}
+        className={`${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable} font-inter antialiased min-h-screen bg-background text-ink`}
       >
         <div className="flex">
           <Sidebar />
-          <main className="ml-60 flex-1 min-h-screen">
+          <main className="ml-[220px] flex-1 min-h-screen bg-background">
             {children}
           </main>
         </div>
@@ -47,5 +45,3 @@ export default function RootLayout({
     </html>
   );
 }
-
-// Made with Bob

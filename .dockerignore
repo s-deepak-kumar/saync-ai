@@ -1,0 +1,30 @@
+# Exclude artifacts that would either bloat the image or pin
+# host-specific binaries (esbuild, swc) that won't run on Linux.
+node_modules
+**/node_modules
+**/dist
+**/.next
+**/.turbo
+**/.cache
+.saync
+saync-reports
+*.log
+.git
+.github
+.vscode
+.idea
+.DS_Store
+
+# Bob session transcripts — not needed in the image.
+bob_sessions
+
+# Local example databases / outputs.
+examples/**/.saync
+examples/**/saync-reports
+examples/**/dist
+examples/**/.next
+
+# Tests / fixtures (none yet, but reserve).
+**/__tests__
+**/*.test.ts
+**/*.test.tsx

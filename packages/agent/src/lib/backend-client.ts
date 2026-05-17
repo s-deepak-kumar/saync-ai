@@ -1,16 +1,17 @@
 /**
- * Backend client for posting verification results to Saync backend
+ * HTTP client that the Saync agent uses to POST run + result + flow +
+ * violation data to the local Saync server. Single-tenant: no project
+ * IDs, no API keys. The server runs on the same machine (or container)
+ * as the agent.
  */
 
 interface BackendClientOptions {
   baseUrl: string;
-  apiKey: string;
   timeout?: number;
 }
 
 interface CreateRunPayload {
-  projectId: string;
-  environment: string;
+  environment: 'local' | 'dev' | 'prod' | 'ci';
   viewport: string;
   gitBranch?: string;
   gitCommit?: string;
@@ -32,7 +33,6 @@ interface PostResultPayload {
 }
 
 interface PostViolationsPayload {
-  projectId: string;
   violations: Array<{
     contractName: string;
     componentName: string;
@@ -48,6 +48,21 @@ interface PostViolationsPayload {
   }>;
 }
 
+export interface PostFlowPayload {
+  name: string;
+  status: 'passed' | 'failed';
+  durationMs: number;
+  startedAt: string;
+  completedAt: string;
+  steps: Array<{
+    stepIndex: number;
+    kind: 'interact' | 'fill' | 'select' | 'expect' | 'wait';
+    status: 'passed' | 'failed' | 'skipped';
+    errorMessage?: string;
+    screenshot?: string;
+  }>;
+}
+
 interface QueuedRequest {
   method: string;
   url: string;
@@ -57,151 +72,100 @@ interface QueuedRequest {
 
 export class BackendClient {
   private baseUrl: string;
-  private apiKey: string;
   private timeout: number;
   private offlineQueue: QueuedRequest[] = [];
   private isNoOp: boolean;
 
   constructor(options: BackendClientOptions) {
     this.baseUrl = options.baseUrl;
-    this.apiKey = options.apiKey;
     this.timeout = options.timeout ?? 5000;
     this.isNoOp = false;
   }
 
-  /**
-   * Create a no-op client that doesn't make any requests
-   */
   static createNoOp(): BackendClient {
-    const client = new BackendClient({
-      baseUrl: 'http://localhost:4000',
-      apiKey: 'noop',
-    });
+    const client = new BackendClient({ baseUrl: 'http://localhost:3777' });
     client.isNoOp = true;
     return client;
   }
 
-  /**
-   * Create a new test run
-   */
   async createRun(payload: CreateRunPayload): Promise<string | null> {
     if (this.isNoOp) return null;
-
     const response = await this.request<{ runId: string }>('POST', '/api/runs', payload);
     return response?.runId ?? null;
   }
 
-  /**
-   * Post a contract verification result
-   */
   async postResult(runId: string, payload: PostResultPayload): Promise<void> {
     if (this.isNoOp) return;
-
     await this.request('POST', `/api/runs/${runId}/results`, payload);
   }
 
-  /**
-   * Mark a run as complete
-   */
   async completeRun(runId: string, status: 'completed' | 'failed'): Promise<void> {
     if (this.isNoOp) return;
-
     await this.request('POST', `/api/runs/${runId}/complete`, { status });
   }
 
-  /**
-   * Post production violations
-   */
   async postViolations(payload: PostViolationsPayload): Promise<void> {
     if (this.isNoOp) return;
-
-    await this.request('POST', '/api/violations', payload);
+    // Server accepts either a single violation or an array — we always send array.
+    await this.request('POST', '/api/violations', payload.violations);
   }
 
-  /**
-   * Flush the offline queue by retrying all queued requests
-   */
+  async postFlow(runId: string, payload: PostFlowPayload): Promise<void> {
+    if (this.isNoOp) return;
+    await this.request('POST', `/api/runs/${runId}/flows`, payload);
+  }
+
   async flushOfflineQueue(): Promise<void> {
     if (this.isNoOp || this.offlineQueue.length === 0) return;
-
     console.log(`[Saync] Flushing ${this.offlineQueue.length} queued request(s)...`);
-
     const queue = [...this.offlineQueue];
     this.offlineQueue = [];
-
     for (const req of queue) {
       try {
         await this.makeRequest(req.method, req.url, req.body);
-        console.log(`[Saync] ✓ Flushed: ${req.method} ${req.url}`);
-      } catch (error) {
-        console.warn(`[Saync] ✗ Failed to flush: ${req.method} ${req.url}`, error);
-        // Re-queue if still failing
+      } catch {
         this.offlineQueue.push(req);
       }
     }
-
-    if (this.offlineQueue.length > 0) {
-      console.warn(`[Saync] ${this.offlineQueue.length} request(s) still queued after flush`);
-    }
   }
 
-  /**
-   * Make a request to the backend
-   */
   private async request<T = unknown>(
     method: string,
     path: string,
-    body?: unknown
+    body?: unknown,
   ): Promise<T | null> {
     const url = `${this.baseUrl}${path}`;
-
     try {
       return await this.makeRequest<T>(method, url, body);
-    } catch (error) {
-      // Queue the request for later retry
+    } catch {
       console.warn(`[Saync] Backend unreachable, queuing request: ${method} ${path}`);
-      this.offlineQueue.push({
-        method,
-        url,
-        body,
-        timestamp: Date.now(),
-      });
+      this.offlineQueue.push({ method, url, body, timestamp: Date.now() });
       return null;
     }
   }
 
-  /**
-   * Actually make the HTTP request
-   */
   private async makeRequest<T = unknown>(
     method: string,
     url: string,
-    body?: unknown
+    body?: unknown,
   ): Promise<T> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), this.timeout);
-
     try {
       const response = await fetch(url, {
         method,
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Saync-Api-Key': this.apiKey,
-        },
-        body: body ? JSON.stringify(body) : undefined,
+        headers: { 'Content-Type': 'application/json' },
+        body: body !== undefined ? JSON.stringify(body) : undefined,
         signal: controller.signal,
       });
-
       clearTimeout(timeoutId);
-
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        const errBody = await response.text().catch(() => '');
+        throw new Error(`HTTP ${response.status}: ${errBody.slice(0, 200)}`);
       }
-
-      return await response.json();
+      return (await response.json()) as T;
     } catch (error) {
       clearTimeout(timeoutId);
-
       if (error instanceof Error) {
         if (error.name === 'AbortError') {
           throw new Error(`Request timeout after ${this.timeout}ms`);
@@ -212,5 +176,3 @@ export class BackendClient {
     }
   }
 }
-
-// Made with Bob

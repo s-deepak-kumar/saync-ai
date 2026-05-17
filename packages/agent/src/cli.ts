@@ -1,13 +1,19 @@
 #!/usr/bin/env node
 
 /**
- * CLI for Saync agent
+ * Standalone CLI for the Saync agent.
+ *
+ * In the local-first model the agent is normally invoked by the Saync
+ * server (which already knows the URL, mode, and DB location). This
+ * binary stays for advanced users / CI hooks who want to run the agent
+ * directly. It assumes the Saync server is already listening — start
+ * it separately with `saync start`.
  */
 
 import { runAgent } from './runner.js';
 import { printError, printProgress, printSuccess } from './reporter.js';
 import { BackendClient } from './lib/backend-client.js';
-import { execSync, spawn } from 'child_process';
+import { execSync } from 'child_process';
 
 interface CliArgs {
   url?: string;
@@ -16,8 +22,7 @@ interface CliArgs {
   output?: string;
   screenshot?: boolean;
   noBackend?: boolean;
-  projectId?: string;
-  environment?: string;
+  environment?: 'local' | 'dev' | 'prod' | 'ci';
 }
 
 function parseArgs(): CliArgs {
@@ -26,55 +31,39 @@ function parseArgs(): CliArgs {
 
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
-
     switch (arg) {
       case '--url':
       case '-u':
-        args.url = argv[++i];
-        break;
+        args.url = argv[++i]; break;
       case '--headless':
-        args.headless = argv[++i] === 'true';
-        break;
+        args.headless = argv[++i] === 'true'; break;
       case '--timeout':
       case '-t':
-        args.timeout = parseInt(argv[++i], 10);
-        break;
+        args.timeout = parseInt(argv[++i], 10); break;
       case '--output':
       case '-o':
-        args.output = argv[++i];
-        break;
+        args.output = argv[++i]; break;
       case '--screenshot':
-        args.screenshot = argv[++i] === 'true';
-        break;
+        args.screenshot = argv[++i] === 'true'; break;
       case '--no-backend':
-        args.noBackend = true;
-        break;
-      case '--project-id':
-        args.projectId = argv[++i];
-        break;
+        args.noBackend = true; break;
       case '--environment':
       case '--env':
-        args.environment = argv[++i];
-        break;
+        args.environment = argv[++i] as CliArgs['environment']; break;
       case '--help':
       case '-h':
-        printHelp();
-        process.exit(0);
-        break;
+        printHelp(); process.exit(0); break;
       default:
-        if (!arg.startsWith('-') && !args.url) {
-          args.url = arg;
-        }
+        if (!arg.startsWith('-') && !args.url) args.url = arg;
         break;
     }
   }
-
   return args;
 }
 
 function printHelp(): void {
   console.log(`
-Saync Agent - Automated expectation verification
+Saync Agent — run all contracts + flows against your app
 
 Usage:
   saync-agent [options] <url>
@@ -85,58 +74,29 @@ Options:
   -t, --timeout <ms>        Timeout in milliseconds (default: 30000)
   -o, --output <file>       Output file for report (default: saync-failures.json)
   --screenshot <true|false> Take screenshots on failure (default: true)
-  --no-backend              Skip backend integration (markdown only)
-  --project-id <id>         Project ID for backend (default: auto-detect)
-  --environment <env>       Environment name (default: local)
+  --no-backend              Don't POST results — emit local report only
+  --environment <env>       'local' | 'dev' | 'prod' | 'ci' (default: local)
   -h, --help                Show this help message
 
-Environment Variables:
-  SAYNC_NO_BACKEND=1        Skip backend integration
-  SAYNC_PORT=4000           Backend port (default: 4000)
-  SAYNC_API_KEY=<key>       API key for backend (default: dev-key)
+Environment variables:
+  SAYNC_NO_BACKEND=1            Same as --no-backend
+  SAYNC_URL=<url>               Saync server URL (default: http://localhost:3777)
 
 Examples:
   saync-agent http://localhost:3000
-  saync-agent --url http://localhost:3000 --headless false
+  saync-agent --url http://localhost:5173 --headless false
   saync-agent http://localhost:3000 --no-backend
-  saync-agent http://localhost:3000 --project-id my-app --environment staging
   `);
 }
 
-/**
- * Get git branch name
- */
 function getGitBranch(): string | undefined {
-  try {
-    return execSync('git rev-parse --abbrev-ref HEAD', { encoding: 'utf-8' }).trim();
-  } catch {
-    return undefined;
-  }
+  try { return execSync('git rev-parse --abbrev-ref HEAD', { encoding: 'utf-8' }).trim(); }
+  catch { return undefined; }
 }
 
-/**
- * Get git commit hash
- */
 function getGitCommit(): string | undefined {
-  try {
-    return execSync('git rev-parse HEAD', { encoding: 'utf-8' }).trim();
-  } catch {
-    return undefined;
-  }
-}
-
-/**
- * Get project ID from package.json
- */
-function getProjectId(): string {
-  try {
-    const pkg = JSON.parse(
-      execSync('cat package.json', { encoding: 'utf-8' })
-    );
-    return pkg.name || 'default';
-  } catch {
-    return 'default';
-  }
+  try { return execSync('git rev-parse HEAD', { encoding: 'utf-8' }).trim(); }
+  catch { return undefined; }
 }
 
 async function main(): Promise<void> {
@@ -147,87 +107,42 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  // Check if backend should be disabled
   const noBackend = args.noBackend || process.env.SAYNC_NO_BACKEND === '1';
-
-  let backendProcess: any = null;
-  let backendClient: BackendClient | undefined;
+  let backendClient: BackendClient;
 
   try {
-    // Start backend if not disabled
     if (!noBackend) {
-      printProgress('Starting Saync backend...');
-      const port = parseInt(process.env.SAYNC_PORT || '4000', 10);
-      const backendUrl = `http://localhost:${port}`;
-      
-      // Check if backend is already running
-      let backendRunning = false;
+      const baseUrl = (process.env.SAYNC_URL ?? 'http://localhost:3777').replace(/\/$/, '');
+      printProgress(`Saync server: ${baseUrl}`);
+
+      let reachable = false;
       try {
-        const response = await fetch(`${backendUrl}/health`, { signal: AbortSignal.timeout(1000) });
-        if (response.ok) {
-          backendRunning = true;
-          printSuccess(`Backend already running at ${backendUrl}`);
-        }
-      } catch {
-        // Backend not running, start it
-      }
+        const response = await fetch(`${baseUrl}/api/system`, { signal: AbortSignal.timeout(2000) });
+        reachable = response.ok;
+      } catch { /* timeout / not running */ }
 
-      if (!backendRunning) {
-        // Start backend with Bun in background
-        const backendPath = new URL('../../../backend/src/index.ts', import.meta.url).pathname;
-        backendProcess = spawn('bun', ['run', backendPath], {
-          env: { ...process.env, SAYNC_PORT: String(port) },
-          stdio: 'ignore',
-          detached: true,
-        });
-        
-        backendProcess.unref();
-        
-        // Wait for backend to be ready
-        printProgress('Waiting for backend to start...');
-        let retries = 20;
-        while (retries > 0) {
-          try {
-            const response = await fetch(`${backendUrl}/health`, { signal: AbortSignal.timeout(500) });
-            if (response.ok) {
-              printSuccess(`Backend ready at ${backendUrl}`);
-              break;
-            }
-          } catch {
-            // Not ready yet
-          }
-          await new Promise(resolve => setTimeout(resolve, 500));
-          retries--;
-        }
-        
-        if (retries === 0) {
-          throw new Error('Backend failed to start');
-        }
+      if (!reachable) {
+        throw new Error(
+          `Saync server at ${baseUrl} is not reachable.\n` +
+          `Start it first with:  npm run saync   (or: npx saync start)`,
+        );
       }
+      printSuccess(`Saync server reachable at ${baseUrl}`);
 
-      // Create backend client
-      const apiKey = process.env.SAYNC_API_KEY || 'dev-key';
-      backendClient = new BackendClient({
-        baseUrl: backendUrl,
-        apiKey,
-      });
+      backendClient = new BackendClient({ baseUrl });
     } else {
       printProgress('Backend integration disabled (--no-backend)');
       backendClient = BackendClient.createNoOp();
     }
 
-    // Get project metadata
-    const projectId = args.projectId || getProjectId();
-    const environment = args.environment || process.env.NODE_ENV || 'local';
+    const environment = args.environment ?? ((process.env.SAYNC_MODE as CliArgs['environment']) || 'local');
     const gitBranch = getGitBranch();
     const gitCommit = getGitCommit();
 
-    printProgress(`Project: ${projectId}`);
     printProgress(`Environment: ${environment}`);
     if (gitBranch) printProgress(`Git branch: ${gitBranch}`);
-    if (gitCommit) printProgress(`Git commit: ${gitCommit?.substring(0, 7)}`);
+    if (gitCommit) printProgress(`Git commit: ${gitCommit.substring(0, 7)}`);
 
-    // Run agent
     const report = await runAgent({
       url: args.url,
       headless: args.headless ?? true,
@@ -235,28 +150,16 @@ async function main(): Promise<void> {
       outputFile: args.output ?? 'saync-failures.json',
       screenshotOnFailure: args.screenshot ?? true,
       backendClient,
-      projectId,
       environment,
       gitBranch,
       gitCommit,
     });
 
-    // Exit with error code if any tests failed
-    if (report.summary.failed > 0) {
-      process.exit(1);
-    }
+    if (report.summary.failed > 0) process.exit(1);
   } catch (error) {
     printError('Fatal error', error as Error);
     process.exit(1);
-  } finally {
-    // Stop backend if we started it
-    if (backendProcess && !noBackend) {
-      printProgress('Stopping backend...');
-      backendProcess.kill();
-    }
   }
 }
 
 main();
-
-// Made with Bob

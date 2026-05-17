@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <rect width="400" height="400" fill="#E2DCD0"/>
+  <!-- Waistband -->
+  <rect x="140" y="80" width="120" height="20" fill="#7C6F58" stroke="#5C5240" stroke-width="2"/>
+  <!-- Belt loop / button -->
+  <circle cx="200" cy="90" r="4" fill="#3D3422"/>
+  <!-- Left leg -->
+  <path d="M140 100 L132 320 L172 320 L196 100 Z" fill="#8C7E64" stroke="#5C5240" stroke-width="2"/>
+  <!-- Right leg -->
+  <path d="M204 100 L228 320 L268 320 L260 100 Z" fill="#8C7E64" stroke="#5C5240" stroke-width="2"/>
+  <!-- Center seam -->
+  <line x1="200" y1="100" x2="200" y2="200" stroke="#5C5240" stroke-width="1" stroke-dasharray="3 3"/>
+</svg>

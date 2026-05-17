@@ -1,7 +1,7 @@
 {
   "name": "@saync/react",
   "version": "0.1.0",
-  "description": "React components for Saync expectations",
+  "description": "React SDK for Saync — declare expectations on Button, Input, Form, Image, Link, and 30+ other components.",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -11,15 +11,40 @@
       "import": "./dist/index.js"
     }
   },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
     "clean": "rm -rf dist",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "tsc"
   },
-  "keywords": ["react", "testing", "verification"],
-  "author": "",
+  "keywords": [
+    "saync",
+    "react",
+    "testing",
+    "verification",
+    "contracts",
+    "qa"
+  ],
+  "author": "S Deepak Kumar <dipkfilms@gmail.com>",
   "license": "MIT",
+  "homepage": "https://github.com/s-deepak-kumar/saync-ai#readme",
+  "bugs": {
+    "url": "https://github.com/s-deepak-kumar/saync-ai/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/s-deepak-kumar/saync-ai.git",
+    "directory": "packages/react"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0"
   },

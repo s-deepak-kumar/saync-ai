@@ -2,5 +2,5 @@ packages:
   - 'packages/*'
   - 'examples/*'
   - 'apps/*'
-
-# Made with Bob
+  - '!**/.next/**'
+  - '!**/node_modules/**'

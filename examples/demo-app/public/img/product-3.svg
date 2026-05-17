@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <rect width="400" height="400" fill="#EFE6D6"/>
+  <!-- Belt strap (coiled) -->
+  <path d="M80 200 Q200 100 320 200 Q200 280 80 200 Z" fill="none" stroke="#7A4A2B" stroke-width="32" stroke-linejoin="round"/>
+  <path d="M80 200 Q200 100 320 200 Q200 280 80 200 Z" fill="none" stroke="#5C3618" stroke-width="2"/>
+  <!-- Buckle -->
+  <rect x="180" y="180" width="40" height="40" rx="3" fill="#C9A35B" stroke="#8B6E3B" stroke-width="2"/>
+  <rect x="192" y="188" width="16" height="24" fill="none" stroke="#8B6E3B" stroke-width="1.5"/>
+  <line x1="200" y1="200" x2="200" y2="200" stroke="#8B6E3B" stroke-width="2"/>
+  <!-- Holes -->
+  <circle cx="135" cy="200" r="3" fill="#3D2710"/>
+  <circle cx="155" cy="200" r="3" fill="#3D2710"/>
+  <circle cx="175" cy="200" r="3" fill="#3D2710"/>
+</svg>

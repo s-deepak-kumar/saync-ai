@@ -2,228 +2,229 @@
 
 **Declare what your app should do. Verify it automatically.**
 
-Saync is a developer tool that lets you declare behavioral expectations inline with your React components, then automatically verifies them using a Playwright-based agent. No more writing separate test files—your expectations live with your code.
-
-## The Problem
-
-When you build an app, you know what each button, form, and API call should do. But that knowledge lives only in your head or scattered across test files. Current solutions fall short:
-
-- **Manual testing** — slow, doesn't scale, misses edge cases
-- **Hand-written tests** — time-consuming, brittle, often skipped
-- **Production monitoring** — only catches crashes, misses silent bugs
-- **AI testing agents** — guess what your app should do (and guess wrong)
-
-## The Solution
-
-Saync lets you **declare expectations at the point of implementation** and **automatically verifies them** in both development and production.
+Saync is a developer QA platform that catches bugs by checking *contracts you write inline* with your components — not separate test files, not AI-guessed intent, not after-the-fact error reports. Wrap an interactive element, declare what should happen when a user touches it, and a Playwright-driven agent verifies every contract on every run.
 
 ```tsx
-<SayncButton
-  expect={{
-    onClick: {
-      apiCall: {
-        method: 'POST',
-        url: '/api/cart',
-        expectedStatus: 200,
-        maxDuration: 500
-      },
-      responseShape: {
-        cartCount: 'number',
-        success: 'boolean'
-      }
-    }
+import { Saync } from '@saync/react';
+
+<Saync.Form
+  name="checkout"
+  onSubmit={placeOrder}
+  expects={{
+    onSubmit: {
+      apiCall: { method: 'POST', url: '/api/orders', expectedStatus: 200 },
+      responseShape: { orderId: 'string' },
+      redirectTo: '/success',
+    },
   }}
-  onClick={handleAddToCart}
 >
-  Add to Cart
-</SayncButton>
+  <Saync.Input name="email" type="email" expects={{
+    validation: { required: true, type: 'email', pattern: '^[^@]+@[^@]+\\.[a-z]{2,}$' },
+  }} />
+  <Saync.Select name="shipping" expects={{
+    validation: { required: true, allowedValues: ['standard', 'express', 'overnight'] },
+  }} />
+  <Saync.Button name="place-order" type="submit" expects={{ onClick: {} }}>
+    Place order
+  </Saync.Button>
+</Saync.Form>
 ```
 
-Run the agent:
+When you run the agent, every part of that declaration is verified against reality — the form submit fires the right API, the email regex really blocks bad addresses, the shipping select actually offers all three options, the redirect lands where promised. Each violation lands on the dashboard with `expected` vs `observed` values.
+
+---
+
+## What's in the box
+
+| Package | What it is |
+|---|---|
+| **`@saync/react`** | React SDK — 42 components (Button, Form, Input, Modal, Tooltip, Table, …) plus `useSaync()` hook and `<Saync.Provider>` |
+| **`@saync/agent`** | Playwright-based CLI — `saync-agent <url>` reads your declared contracts from a running app and verifies each one |
+| **`@saync/backend`** | Bun + Hono + SQLite server — receives results, deduplicates issues, streams live updates to the dashboard via SSE |
+| **`@saync/core`** | Framework-agnostic types + registry the React SDK is built on |
+| **`@saync/dashboard`** (Next.js app) | Editorial UI — your projects, runs, issues, install snippet. Multi-tenant by unguessable project URL. |
+| **`examples/demo-app`** | A small "Saync Shop" (Vite + React) wrapped with 18 contracts and 5 intentionally planted bugs — the test subject the agent runs against |
+
+---
+
+## Quick start (use Saync in your own app)
+
+### 1. Create a project on the dashboard
+
+Visit your Saync dashboard (locally `http://localhost:3000`) → "Create project" → save the `sync_…` API key shown ONCE on the setup page.
+
+### 2. Install the SDK + agent
+
 ```bash
-pnpm saync-agent http://localhost:3000
+pnpm add @saync/react @saync/agent
 ```
 
-Get instant verification:
-```
-✓ PASSED [button-1234] (245ms)
-✗ FAILED [button-5678] (523ms)
-  Error: API status mismatch
-  Expected: 200
-  Actual:   500
-```
-
-## Features
-
-- **Inline expectations** — Declare what your code should do right where you write it
-- **Automatic verification** — Playwright agent reads and verifies expectations from your running app
-- **Beautiful reports** — Structured JSON + colorful terminal output with exact failure details
-- **Production monitoring** — Same SDK works in production to catch real-world violations
-- **Framework-agnostic core** — React wrapper provided, but core works anywhere
-
-## Quick Start
-
-### 1. Install
-
-```bash
-pnpm add @saync/react
-pnpm add -D @saync/agent
-```
-
-### 2. Wrap your components
+### 3. Wrap your app
 
 ```tsx
-import { SayncButton } from '@saync/react';
+import { Saync } from '@saync/react';
 
-function MyComponent() {
+export default function App() {
   return (
-    <SayncButton
-      expect={{
-        onClick: {
-          apiCall: {
-            method: 'POST',
-            url: '/api/action',
-            expectedStatus: 200,
-            maxDuration: 500
-          }
-        }
-      }}
-      onClick={handleClick}
-    >
-      Click Me
-    </SayncButton>
+    <Saync.Provider projectId="<your-project-id>" mode="log">
+      <YourApp />
+    </Saync.Provider>
   );
 }
 ```
 
-### 3. Run the agent
+Then wrap individual interactive elements:
+
+```tsx
+<Saync.Button name="add-to-cart" onClick={addToCart} expects={{
+  onClick: { apiCall: { method: 'POST', url: '/api/cart', expectedStatus: 200 } },
+}}>
+  Add to cart
+</Saync.Button>
+```
+
+### 4. Run the agent against your running app
 
 ```bash
-# Start your dev server
-pnpm dev
-
-# In another terminal, run Saync
-pnpm saync-agent http://localhost:3000
+SAYNC_BACKEND_URL=http://<your-saync-host>:4000 \
+SAYNC_API_KEY=sync_… \
+pnpm exec saync-agent --project-id <your-project-id> http://localhost:3000
 ```
 
-## Project Structure
+Results stream to the dashboard live. Markdown failure reports are also written to `./saync-reports/` for your IDE to open.
 
-This is a monorepo with the following packages:
+---
 
-```
-saync-ai/
-├── packages/
-│   ├── core/          # Framework-agnostic expectation registry
-│   ├── react/         # React wrapper components
-│   └── agent/         # Playwright verification agent
-└── examples/
-    └── demo-app/      # Demo React app
-```
-
-## Development
+## Run the whole platform locally (for development)
 
 ```bash
-# Install dependencies
+git clone https://github.com/your-org/saync-ai
+cd saync-ai
 pnpm install
 
-# Build all packages
-pnpm build
+# Build the packages
+pnpm -r build
 
-# Run demo app
-cd examples/demo-app
-pnpm dev
+# Terminal 1 — backend (Bun runtime required)
+bun run packages/backend/src/index.ts     # listens on :4000
 
-# Run agent against demo app
-pnpm test:saync
+# Terminal 2 — dashboard
+cd apps/dashboard && pnpm dev             # serves on :3000
+
+# Terminal 3 — demo app (the test subject)
+cd examples/demo-app && pnpm dev          # serves on :5173
+
+# Terminal 4 — run the agent against the demo
+# (first, create a project at http://localhost:3000 and copy the API key)
+SAYNC_BACKEND_URL=http://localhost:4000 \
+SAYNC_API_KEY=sync_… \
+pnpm --filter demo-app exec saync-agent \
+  --project-id <the-id> http://localhost:5173
 ```
 
-## Configuration
+Then open `http://localhost:3000/p/<project-id>` to see the run land on the dashboard.
 
-Set the `SAYNC_MODE` environment variable:
+---
 
-- `off` — SDK is no-op, tree-shaken out by bundler
-- `log` — Violations logged to console only (default in dev)
-- `report` — Violations sent to webhook (for production monitoring)
+## SDK component reference
 
-```bash
-# Development
-SAYNC_MODE=log pnpm dev
+All 42 components share the same registration shape:
 
-# Production
-SAYNC_MODE=report pnpm start
+```tsx
+<Saync.SomeComponent
+  name="<contract-id-for-the-dashboard>"
+  expects={{ ...what-the-agent-should-verify }}
+  {...native-element-props}
+/>
 ```
 
-## API Reference
+### Foundation
+- `<Saync.Provider>` — wraps your app; required for context-based registration
+- `useSaync()` — hook for manual `track(name, data)` events (sockets, polling)
+- `<Saync.ErrorBoundary>` — catches React errors into `window.__SAYNC__.events`
 
-### `<SayncButton>`
+### Forms & inputs
+Button · Form · Input · Textarea · Select · Checkbox · Switch · Radio + RadioGroup · Slider · FileInput · DatePicker
 
-React wrapper component for button expectations.
+### Navigation
+Link · NavLink · Tabs + Tab · Breadcrumb + BreadcrumbItem · Pagination · Menu + MenuItem
 
-**Props:**
-- `expect.onClick.apiCall` — Expected API call specification
-  - `method` — HTTP method (GET, POST, etc.)
-  - `url` — URL or RegExp pattern
-  - `expectedStatus` — Expected HTTP status code
-  - `maxDuration` — Max duration in milliseconds
-- `expect.onClick.responseShape` — Expected response shape validation
-- `sourceFile` — Source file path (for better error reporting)
-- `sourceLine` — Source line number
+### Containers
+Region · Section · Modal · Dialog · Drawer · Popover · Tooltip · Accordion + AccordionItem
 
-### Agent CLI
+### Display
+Image · Avatar · Badge · Toast · Alert · Spinner · Progress · Skeleton
 
-```bash
-saync-agent [options] <url>
+### Data
+List · Table · Card · Tree
 
-Options:
-  -u, --url <url>           URL of the application to test (required)
-  --headless <true|false>   Run browser in headless mode (default: true)
-  -t, --timeout <ms>        Timeout in milliseconds (default: 30000)
-  -o, --output <file>       Output file for report (default: saync-failures.json)
-  --screenshot <true|false> Take screenshots on failure (default: true)
+---
+
+## Contract types — what the agent actually verifies
+
+| Contract | Applies to | Asserts |
+|---|---|---|
+| `apiCall: { method, url, expectedStatus, maxDuration }` | Button, Form, Input.onChange, Select, etc. | The right HTTP request fires with the right method/status/duration |
+| `responseShape: { …field types }` | Any contract with `apiCall` | Response JSON has the declared field types |
+| `validation: { required, pattern, min, max, allowedValues, type, … }` | Input, Textarea, Select, Slider, FileInput, DatePicker | DOM attributes match declared rules; select/radio offer the declared options |
+| `onSubmit: { apiCall, responseShape, redirectTo, preventsSubmitWhenInvalid }` | Form | Submit fires the API, response matches, URL lands at the declared redirect |
+| `onNavigate: { toUrl, appears, apiCall }` | Link, NavLink | Click navigates to `toUrl`, declared element appears at the destination |
+| `layout: { visibleAt, notClipped, minTapTarget, containsText, appears }` | Region, Section | Element is visible at named viewports (mobile/tablet/desktop), not clipped, tap-target ≥ N px |
+| Disclosure (`closesOnEscape`, `closesOnOutsideClick`, `hasBackdrop`) | Modal, Drawer, Popover, Menu | Open/close behaviors work; backdrop / Escape / outside-click all dismiss |
+| Tooltip (`showsOnHover`, `containsText`, `hidesOnBlur`) | Tooltip | Hover shows bubble with declared text, blur hides it |
+| Image / Badge / Avatar / Notice / List / Table / Tree | Each component | Loaded successfully, in range, contains text, row/column count matches, etc. |
+
+The full type definitions live in [`packages/core/src/types.ts`](packages/core/src/types.ts).
+
+---
+
+## Architecture
+
+```
+Your app                                         Saync platform
+─────────                                        ──────────────
+<Saync.Provider>                                ┌────────────────┐
+  <Saync.Button name="x" expects={…}>           │  Dashboard     │
+                                                │  (Next.js)     │
+                       ↓                        │                │
+              window.__SAYNC_EXPECTATIONS__     │  GET /api/…   ←─
+                                                │  SSE stream   ←─
+                       ↓                        └────────────────┘
+                                                        ↑ reads
+              `saync-agent <url>`                       │
+              (Playwright)                       ┌──────┴─────────┐
+                       ↓                         │  Backend       │
+              POST /api/runs                ─→   │  (Bun + Hono   │
+              POST /api/runs/:id/results    ─→   │   + SQLite)    │
+              POST /api/runs/:id/complete   ─→   │                │
+              SSE → live stream             ←─   │  X-Saync-Api-  │
+                                                 │  Key per       │
+                                                 │  project       │
+                                                 └────────────────┘
 ```
 
-## Roadmap
+- Each project has an unguessable `id` (the dashboard URL slug) and an `apiKey` (write auth on the backend).
+- Reads are public — knowing the URL is the access control.
+- Writes require the project's API key in the `X-Saync-Api-Key` header.
 
-**v0.1 (Current)** — Proof of concept
-- ✅ Button clicks + API calls
-- ✅ Basic response validation
-- ✅ React wrapper component
-- ✅ Playwright agent
-- ✅ Terminal + JSON reporting
+---
 
-**v0.2** — Enhanced validation
-- Form submissions
-- Redirect expectations
-- Advanced response shape validation (nested objects, arrays)
-- DOM state assertions
+## Modes
 
-**v0.3** — Production features
-- Webhook reporting
-- Sampling for production monitoring
-- Source map integration for better error reporting
-- Browser overlay for dev mode
+`<Saync.Provider mode={…}>` accepts three values:
 
-**v0.4** — Framework expansion
-- Vue wrapper
-- Svelte wrapper
-- Vanilla JS examples
+- `'off'` — Provider does nothing; no globals, no overhead. Production builds default to this.
+- `'log'` — Default in dev (`NODE_ENV !== 'production'`). Components register into `window.__SAYNC_EXPECTATIONS__` for the agent to read. No network activity from the SDK.
+- `'report'` — Future: wraps `window.fetch`, batches contract violations from real users, POSTs to the backend as production observability data. Skeleton wired; not feature-complete in v0.1.
 
-## Why "Saync"?
+---
 
-**Say** what your code should do + **Sync** expectations with reality = **Saync**
+## Deploy
 
-Also: **S**ynchronize **A**pplication **Y**ield with **N**amed **C**ontracts
+See [DEPLOY.md](DEPLOY.md) for IBM Cloud / VPS deploy recipes.
 
-(Okay, we just thought it sounded cool.)
+---
 
 ## License
 
 MIT
-
-## Contributing
-
-This is a v0.1 prototype. Feedback, issues, and PRs welcome!
-
----
-
-Built with ❤️ by developers who are tired of writing tests that drift out of sync with code.

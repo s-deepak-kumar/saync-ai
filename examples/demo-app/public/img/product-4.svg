@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <rect width="400" height="400" fill="#F4EFE5"/>
+  <!-- T-shirt body -->
+  <path d="M120 130 L80 170 L110 210 L140 195 L140 320 L260 320 L260 195 L290 210 L320 170 L280 130 L240 110 Q200 130 160 110 Z"
+        fill="#FAFAF7" stroke="#94A3B8" stroke-width="2.5"/>
+  <!-- Neckline -->
+  <path d="M170 115 Q200 135 230 115" fill="none" stroke="#94A3B8" stroke-width="2"/>
+  <!-- Subtle texture lines -->
+  <line x1="160" y1="220" x2="240" y2="220" stroke="#E2E8F0" stroke-width="1"/>
+  <line x1="160" y1="240" x2="240" y2="240" stroke="#E2E8F0" stroke-width="1"/>
+  <line x1="160" y1="260" x2="240" y2="260" stroke="#E2E8F0" stroke-width="1"/>
+</svg>

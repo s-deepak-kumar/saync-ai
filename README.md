@@ -4,7 +4,7 @@
 
 [![Saync — demo](https://img.youtube.com/vi/qVa-290EX5U/maxresdefault.jpg)](https://youtu.be/qVa-290EX5U)
 
-> ▶ Watch the 60-second demo on YouTube.
+> ▶ Watch the demo on YouTube.
 
 ```bash
 npm install --save-dev saync-web

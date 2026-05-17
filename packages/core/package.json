@@ -1,6 +1,6 @@
 {
   "name": "@saync/core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Framework-agnostic core for Saync — contract types, expectation registry, and flow definitions.",
   "type": "module",
   "main": "./dist/index.js",

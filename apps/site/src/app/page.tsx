@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Activity, Terminal, ShieldCheck, Workflow, Wifi, Database } from 'lucide-react';
+import { Activity, Terminal, ShieldCheck, Workflow, Wifi, Database, Sparkles } from 'lucide-react';
 
 export default function Landing() {
   return (
@@ -31,6 +31,14 @@ export default function Landing() {
           <p className="mt-4 text-[12px] text-muted font-mono">
             $ npm install --save-dev saync-web
           </p>
+          <a
+            href="/saync-llm.md"
+            download="saync-llm.md"
+            className="mt-4 inline-flex items-center gap-1.5 text-[12px] text-terracotta hover:underline font-medium"
+          >
+            <Sparkles size={12} />
+            Building with AI? Download the LLM context →
+          </a>
         </div>
 
         <div className="bg-[#0F172A] rounded-xl overflow-hidden shadow-[0_8px_40px_rgba(15,23,42,0.12)]">

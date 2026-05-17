@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Download, Sparkles } from 'lucide-react';
 
 export const metadata = { title: 'Saync — Docs' };
 
@@ -6,9 +7,42 @@ export default function Docs() {
   return (
     <div className="max-w-[820px] mx-auto px-6 py-16">
       <h1 className="font-fraunces text-[44px] leading-none tracking-tighter mb-6">Documentation</h1>
-      <p className="text-[14px] text-muted leading-relaxed mb-10">
+      <p className="text-[14px] text-muted leading-relaxed mb-8">
         Saync is one npm package that ships an SDK, a Playwright-driven agent, a SQLite store, and a dashboard — all running locally inside your project. Everything below assumes Node 18+ and any package manager (npm / pnpm / yarn / bun).
       </p>
+
+      {/* AI-assistant context download */}
+      <div className="mb-12 bg-card border border-border rounded-lg p-5 flex items-start gap-4">
+        <div
+          className="shrink-0 w-10 h-10 rounded-md flex items-center justify-center"
+          style={{ backgroundColor: '#FEF3E2', color: '#D4502A' }}
+        >
+          <Sparkles size={18} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h2 className="font-fraunces text-[18px] tracking-tighter mb-1">
+            Building with an AI assistant?
+          </h2>
+          <p className="text-[12.5px] text-muted leading-relaxed mb-3 max-w-[520px]">
+            Download the full Saync context as a single Markdown file. Paste it into Claude / ChatGPT / Cursor / Copilot Chat — the model will know every component, flow step, contract shape, CLI command, and HTTP endpoint.
+          </p>
+          <a
+            href="/saync-llm.md"
+            download="saync-llm.md"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-white bg-ink rounded hover:bg-ink/90 transition-colors"
+          >
+            <Download size={12} /> Download saync-llm.md
+          </a>
+          <a
+            href="/saync-llm.md"
+            target="_blank"
+            rel="noreferrer"
+            className="ml-2 inline-flex items-center px-3 py-1.5 text-[12px] font-medium text-ink bg-white border border-border rounded hover:bg-zebra transition-colors"
+          >
+            View in browser
+          </a>
+        </div>
+      </div>
 
       <Section id="install" title="1. Install">
         <CodeBlock language="bash" code={`npm install --save-dev saync-web`} />
@@ -64,13 +98,14 @@ export function AddToCartButton({ onClick }) {
           language="ts"
           code={`import { defineFlow } from 'saync-web';
 
-export default [
+export const flows = [
   defineFlow({
     name: 'add-to-cart',
-    url: '/products/1',
+    description: 'Add a product to cart and verify the badge updates.',
     steps: [
-      { kind: 'interact', target: 'add-to-cart-button' },
-      { kind: 'expect',   target: 'cart-count', text: '1' },
+      { interact: 'add-to-cart' },
+      { interact: 'open-cart' },
+      { expect: { text: 'Your cart' } },
     ],
   }),
 ];`}

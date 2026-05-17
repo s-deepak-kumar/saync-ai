@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Download, Sparkles } from 'lucide-react';
 
 type Pkg = 'npm' | 'pnpm' | 'yarn' | 'bun';
 
@@ -43,13 +44,14 @@ export function AddToCartButton({ onClick }) {
 const FLOWS_SNIPPET = `// saync.flows.ts at your repo root
 import { defineFlow } from 'saync-web';
 
-export default [
+export const flows = [
   defineFlow({
     name: 'add-to-cart',
-    url: '/products/1',
+    description: 'Add a product to cart and verify the badge updates.',
     steps: [
-      { kind: 'interact', target: 'add-to-cart-button' },
-      { kind: 'expect',   target: 'cart-count', text: '1' },
+      { interact: 'add-to-cart' },
+      { interact: 'open-cart' },
+      { expect: { text: 'Your cart' } },
     ],
   }),
 ];`;
@@ -74,7 +76,7 @@ export default function SetupPage() {
 
   return (
     <div className="px-12 py-10 max-w-[820px]">
-      <header className="mb-12">
+      <header className="mb-10">
         <h1 className="font-fraunces text-[40px] leading-none tracking-tighter text-ink mb-3">
           Set up Saync
         </h1>
@@ -85,6 +87,42 @@ export default function SetupPage() {
           in your repo.
         </p>
       </header>
+
+      {/* AI-assistant context download */}
+      <section className="mb-12 bg-card border border-border rounded-lg p-5 flex items-start gap-4">
+        <div
+          className="shrink-0 w-10 h-10 rounded-md flex items-center justify-center"
+          style={{ backgroundColor: '#FEF3E2', color: '#D4502A' }}
+        >
+          <Sparkles size={18} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h2 className="font-fraunces text-[18px] tracking-tighter mb-1">
+            Setting up with an AI assistant?
+          </h2>
+          <p className="text-[12.5px] text-muted leading-relaxed mb-3 max-w-[520px]">
+            Download the full Saync context as a single Markdown file and paste
+            it into Claude, ChatGPT, Cursor, or any other AI assistant. The
+            model will know every component, every flow step, every contract
+            shape, and every CLI command.
+          </p>
+          <a
+            href="/saync-llm.md"
+            download="saync-llm.md"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-white bg-ink rounded hover:bg-ink/90 transition-colors"
+          >
+            <Download size={12} /> Download saync-llm.md
+          </a>
+          <a
+            href="/saync-llm.md"
+            target="_blank"
+            rel="noreferrer"
+            className="ml-2 inline-flex items-center px-3 py-1.5 text-[12px] font-medium text-ink bg-white border border-border rounded hover:bg-rowHover transition-colors"
+          >
+            View in browser
+          </a>
+        </div>
+      </section>
 
       <Step number={1} title="Install">
         <div className="flex gap-1 mb-3">

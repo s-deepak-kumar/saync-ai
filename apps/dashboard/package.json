@@ -1,6 +1,6 @@
 {
   "name": "saync-web",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Local-first QA platform. Declare contracts on your UI components, verify them automatically, see failures in a dashboard. No SaaS, no signup, no telemetry.",
   "license": "MIT",
   "type": "module",

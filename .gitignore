@@ -39,3 +39,8 @@ saync-failures.json
 
 # Made with Bob
 Untitled presentation.txt
+
+# Loose-leaf working files at the repo root that aren't part of the project
+/deck-revisions.md
+/Untitled*.txt
+/Untitled*.md

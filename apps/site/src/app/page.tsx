@@ -24,17 +24,26 @@ function Hero() {
         <div>
           <div className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.1em] text-muted mb-5 font-mono">
             <span className="inline-block w-1 h-1 rounded-full bg-terracotta" />
+            For React developers
+            <span className="text-rule">/</span>
             Open source · MIT
             <span className="text-rule">/</span>
-            saync-web 0.1.1 on npm
+            v0.1.1
           </div>
-          <h1 className="font-serif font-medium text-[52px] leading-[1.05] tracking-tight text-ink mb-5">
-            Behavioral contracts <span className="text-terracotta">for React apps.</span>
+          <h1 className="font-serif font-medium text-[52px] leading-[1.02] tracking-tight text-ink mb-5">
+            Inline contracts for your UI.{' '}
+            <span className="text-terracotta">Verified on every save.</span>
           </h1>
-          <p className="text-[15px] leading-[1.6] text-muted max-w-[540px] mb-7">
-            Declare what each button, form, and link should do — inline, next to the component. A
-            Playwright-driven agent runs your app on every save, drives every contract, and surfaces
-            failures in a local dashboard. No SaaS. No signup. Your code stays on your machine.
+          <p className="text-[15px] leading-[1.6] text-muted max-w-[560px] mb-3">
+            Wrap a <code className="font-mono text-[13.5px] text-ink bg-zebra px-1 py-0.5 rounded">{`<button>`}</code> — declare the API it should call.
+            Wrap a <code className="font-mono text-[13.5px] text-ink bg-zebra px-1 py-0.5 rounded">{`<form>`}</code> — declare what it submits and where it redirects.
+            Wrap an <code className="font-mono text-[13.5px] text-ink bg-zebra px-1 py-0.5 rounded">{`<input>`}</code> — declare its validation rules.
+          </p>
+          <p className="text-[15px] leading-[1.6] text-muted max-w-[560px] mb-7">
+            A Playwright-driven agent boots your app on every save, drives every contract, and
+            reports every drift between expected and observed — in a dashboard at
+            <span className="font-mono text-ink"> localhost:3777</span>, inside your repo. No SaaS,
+            no signup, no test files.
           </p>
           <div className="font-mono text-[13px] bg-codeBg text-white/90 rounded inline-flex items-center px-4 py-2.5">
             <span className="text-white/40 mr-2 select-none">$</span>

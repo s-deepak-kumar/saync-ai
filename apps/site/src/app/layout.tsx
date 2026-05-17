@@ -118,7 +118,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <div className="border-t border-border">
             <div className="max-w-[1200px] mx-auto px-6 h-12 flex items-center justify-between text-[11px] text-muted">
               <span>MIT licensed · Local-first · No telemetry</span>
-              <span className="font-mono">© 2026 Saync — built for the Bob hackathon</span>
+              <span className="font-mono">© 2026 Saync — Made with love with IBM Bob</span>
             </div>
           </div>
         </footer>

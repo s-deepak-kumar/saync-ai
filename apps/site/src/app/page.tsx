@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { CodeMockup } from './_components/CodeMockup';
 
 export default function Landing() {
   return (
@@ -62,57 +63,6 @@ function Hero() {
         <CodeMockup />
       </div>
     </section>
-  );
-}
-
-function CodeMockup() {
-  return (
-    <div className="bg-codeBg rounded-md overflow-hidden shadow-[0_24px_60px_-20px_rgba(15,23,42,0.35)] border border-[#1B2536]">
-      {/* tab bar */}
-      <div className="flex items-center border-b border-[#1B2536] bg-[#0A0F1A]">
-        <div className="flex">
-          <span className="px-4 py-2.5 text-[11px] text-white/80 font-mono border-r border-[#1B2536] bg-codeBg">
-            AddToCart.tsx
-          </span>
-          <span className="px-4 py-2.5 text-[11px] text-white/35 font-mono border-r border-[#1B2536] hover:text-white/60 cursor-pointer">
-            saync.flows.ts
-          </span>
-        </div>
-        <span className="ml-auto pr-3 text-[10px] text-white/30 font-mono uppercase tracking-[0.1em]">
-          react · 18 lines
-        </span>
-      </div>
-      <pre className="px-5 py-4 font-mono text-[12.5px] leading-[1.65] text-white/90 overflow-x-auto whitespace-pre">
-{`import { SayncButton } from 'saync-web/react';
-
-export function AddToCartButton({ productId }) {
-  return (
-    `}<span className="text-[#C5A6FF]">{`<SayncButton`}</span>{`
-      `}<span className="text-[#8FB7E5]">name</span>{`=`}<span className="text-[#A8D5BA]">"add-to-cart"</span>{`
-      `}<span className="text-[#8FB7E5]">expects</span>{`={{
-        `}<span className="text-[#FCBF5E]">onClick</span>{`: {
-          `}<span className="text-[#FCBF5E]">apiCall</span>{`: {
-            `}<span className="text-[#FCBF5E]">method</span>{`: `}<span className="text-[#A8D5BA]">'POST'</span>{`,
-            `}<span className="text-[#FCBF5E]">url</span>{`: `}<span className="text-[#A8D5BA]">'/api/cart'</span>{`,
-            `}<span className="text-[#FCBF5E]">expectedStatus</span>{`: `}<span className="text-[#F18A6A]">200</span>{`,
-            `}<span className="text-[#FCBF5E]">maxDuration</span>{`: `}<span className="text-[#F18A6A]">500</span>{`,
-          },
-          `}<span className="text-[#FCBF5E]">responseShape</span>{`: { `}<span className="text-[#FCBF5E]">cartCount</span>{`: `}<span className="text-[#A8D5BA]">'number'</span>{` },
-        },
-      }}}
-      `}<span className="text-[#8FB7E5]">onClick</span>{`={() => addToCart(productId)}
-    >
-      Add to cart
-    `}<span className="text-[#C5A6FF]">{`</SayncButton>`}</span>{`
-  );
-}`}
-      </pre>
-      {/* status footer */}
-      <div className="border-t border-[#1B2536] bg-[#0A0F1A] px-4 py-2 flex items-center justify-between text-[11px] font-mono">
-        <span className="text-sevPass">✓ contract registered · 1 expectation</span>
-        <span className="text-white/30">localhost:3777</span>
-      </div>
-    </div>
   );
 }
 

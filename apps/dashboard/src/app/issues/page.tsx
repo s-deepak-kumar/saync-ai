@@ -85,16 +85,43 @@ export default async function IssuesPage({ searchParams }: PageProps) {
         </div>
 
         {sorted.length === 0 ? (
-          <div className="px-4 py-8 text-center">
-            <p className="text-[13px] font-medium text-ink mb-1">
-              {all.length === 0 ? 'No issues yet' : 'No issues match these filters'}
-            </p>
-            <p className="text-[12px] text-muted">
-              {all.length === 0
-                ? 'Run the agent against your app to start collecting contracts.'
-                : 'Loosen the filter chips above.'}
-            </p>
-          </div>
+          all.length === 0 ? (
+            <div className="px-6 py-10">
+              <div className="max-w-[520px] mx-auto text-center">
+                <p className="text-[14px] font-medium text-ink mb-1.5">
+                  No issues yet
+                </p>
+                <p className="text-[12.5px] text-muted leading-relaxed mb-4">
+                  Issues are the deduplicated cluster of failed contracts.
+                  Once the agent runs and finds a contract that doesn&apos;t
+                  match reality, the failure shows up here grouped by root
+                  cause.
+                </p>
+                <div className="flex items-center justify-center gap-3 text-[12px]">
+                  <Link href="/runs" className="text-terracotta font-medium hover:underline">
+                    See your runs →
+                  </Link>
+                  <span className="text-rule">·</span>
+                  <Link href="/setup" className="text-ink hover:underline">
+                    Install instructions
+                  </Link>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="px-4 py-8 text-center">
+              <p className="text-[13px] font-medium text-ink mb-1">
+                No issues match these filters
+              </p>
+              <p className="text-[12px] text-muted">
+                Loosen the filter chips above, or{' '}
+                <Link href="/issues" className="text-terracotta hover:underline">
+                  clear all filters
+                </Link>
+                .
+              </p>
+            </div>
+          )
         ) : (
           <ul className="divide-y divide-border">
             {sorted.map((issue) => (

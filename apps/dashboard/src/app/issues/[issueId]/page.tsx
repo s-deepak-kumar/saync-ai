@@ -6,6 +6,7 @@ import { formatRelative, formatAbsolute, shortId } from '@/lib/format';
 import { SEVERITY_TOKEN } from '@/lib/severity';
 import SeverityPill from '@/components/SeverityPill';
 import StatusBadge from '@/components/StatusBadge';
+import AiReport from '@/components/AiReport';
 
 export const dynamic = 'force-dynamic';
 
@@ -105,18 +106,10 @@ export default async function IssueDetailPage({ params }: PageProps) {
             </section>
           )}
 
-          <section className="bg-card border border-dashed border-border rounded p-5">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="text-[10px] uppercase tracking-wider text-label font-medium">
-                AI analysis
-              </div>
-              <span className="text-[10px] text-label">·</span>
-              <span className="text-[10px] text-label">BYOK LLM</span>
-            </div>
-            <p className="text-[12px] text-muted leading-relaxed">
-              Configure an LLM provider in your <code className="font-mono text-[11px]">.env</code> (WATSONX_*, OPENAI_API_KEY, or ANTHROPIC_API_KEY) to generate a root-cause + suggested-fix analysis here.
-            </p>
-          </section>
+          <AiReport
+            body={{ kind: 'issue', issueId: issue.id }}
+            downloadName={`issue-${issue.contractName.replace(/[^a-zA-Z0-9]+/g, '-').toLowerCase()}`}
+          />
         </div>
 
         <div className="space-y-4">

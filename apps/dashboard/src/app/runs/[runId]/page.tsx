@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ChevronRight, FileText } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { api } from '@/lib/api';
 import { formatAbsolute, formatDuration, shortId } from '@/lib/format';
 import LiveRunDetail from './LiveRunDetail';
+import AiReport from '@/components/AiReport';
 
 export const dynamic = 'force-dynamic';
 
@@ -52,18 +53,16 @@ export default async function RunDetailPage({ params }: PageProps) {
           </div>
         </div>
 
-        <button
-          type="button"
-          disabled
-          title="Configure an LLM in your .env (WATSONX_*, OPENAI_API_KEY, or ANTHROPIC_API_KEY) to enable AI report generation"
-          className="px-3 py-1.5 text-[12px] font-medium text-muted bg-white border border-border rounded cursor-not-allowed inline-flex items-center gap-1.5"
-        >
-          <FileText size={13} />
-          Generate report
-        </button>
       </header>
 
       <LiveRunDetail initialRun={run} />
+
+      <div className="mt-6">
+        <AiReport
+          body={{ kind: 'run', runId: run.id }}
+          downloadName={`run-${shortId(run.id)}-report`}
+        />
+      </div>
     </div>
   );
 }

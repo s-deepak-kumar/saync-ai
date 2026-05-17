@@ -56,9 +56,14 @@ const config: Config = {
           '0%, 100%': { opacity: '1', transform: 'scale(1)' },
           '50%':      { opacity: '0.5', transform: 'scale(1.15)' },
         },
+        'in-row': {
+          '0%':   { opacity: '0', transform: 'translateY(-4px)', backgroundColor: '#FEF3E2' },
+          '100%': { opacity: '1', transform: 'translateY(0)',    backgroundColor: 'transparent' },
+        },
       },
       animation: {
         'pulse-dot': 'pulse-dot 1.6s ease-in-out infinite',
+        'in-row':    'in-row 0.42s ease-out',
       },
     },
   },

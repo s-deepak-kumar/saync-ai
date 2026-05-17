@@ -1,0 +1,38 @@
+{
+  "name": "@saync/backend",
+  "version": "0.1.0",
+  "description": "Backend API server for Saync",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "bun run --watch src/index.ts",
+    "start": "bun run src/index.ts",
+    "clean": "rm -rf dist .saync",
+    "typecheck": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate:sqlite",
+    "db:migrate": "drizzle-kit migrate"
+  },
+  "keywords": ["backend", "api", "sqlite", "hono"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "hono": "^4.3.0",
+    "drizzle-orm": "^0.30.10",
+    "zod": "^3.22.4",
+    "@hono/zod-validator": "^0.2.1"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.20.18",
+    "bun-types": "latest",
+    "@types/node": "^20.12.7",
+    "typescript": "^5.4.5"
+  }
+}

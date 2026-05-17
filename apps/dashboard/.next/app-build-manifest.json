@@ -1,0 +1,60 @@
+{
+  "pages": {
+    "/_not-found/page": [
+      "static/chunks/webpack-96bde12ce23f767a.js",
+      "static/chunks/5b8f0dd8-0b7e1dd47e2a464c.js",
+      "static/chunks/749-39e755d29f953c93.js",
+      "static/chunks/main-app-5935754a906046d8.js",
+      "static/chunks/app/_not-found/page-f0721d2c931f5b50.js"
+    ],
+    "/layout": [
+      "static/chunks/webpack-96bde12ce23f767a.js",
+      "static/chunks/5b8f0dd8-0b7e1dd47e2a464c.js",
+      "static/chunks/749-39e755d29f953c93.js",
+      "static/chunks/main-app-5935754a906046d8.js",
+      "static/css/8b8ff01fc57d5003.css",
+      "static/chunks/411-74b2a502b45b9a7c.js",
+      "static/chunks/app/layout-3ca6b6e90e569834.js"
+    ],
+    "/page": [
+      "static/chunks/webpack-96bde12ce23f767a.js",
+      "static/chunks/5b8f0dd8-0b7e1dd47e2a464c.js",
+      "static/chunks/749-39e755d29f953c93.js",
+      "static/chunks/main-app-5935754a906046d8.js",
+      "static/chunks/411-74b2a502b45b9a7c.js",
+      "static/chunks/app/page-cab2ab0c4cdc7ccd.js"
+    ],
+    "/runs/[id]/page": [
+      "static/chunks/webpack-96bde12ce23f767a.js",
+      "static/chunks/5b8f0dd8-0b7e1dd47e2a464c.js",
+      "static/chunks/749-39e755d29f953c93.js",
+      "static/chunks/main-app-5935754a906046d8.js",
+      "static/chunks/411-74b2a502b45b9a7c.js",
+      "static/chunks/app/runs/[id]/page-b025cf580ad0a0e9.js"
+    ],
+    "/issues/page": [
+      "static/chunks/webpack-96bde12ce23f767a.js",
+      "static/chunks/5b8f0dd8-0b7e1dd47e2a464c.js",
+      "static/chunks/749-39e755d29f953c93.js",
+      "static/chunks/main-app-5935754a906046d8.js",
+      "static/chunks/411-74b2a502b45b9a7c.js",
+      "static/chunks/app/issues/page-cb63e92697f2ee07.js"
+    ],
+    "/issues/[id]/page": [
+      "static/chunks/webpack-96bde12ce23f767a.js",
+      "static/chunks/5b8f0dd8-0b7e1dd47e2a464c.js",
+      "static/chunks/749-39e755d29f953c93.js",
+      "static/chunks/main-app-5935754a906046d8.js",
+      "static/chunks/411-74b2a502b45b9a7c.js",
+      "static/chunks/app/issues/[id]/page-40547b02f605ba24.js"
+    ],
+    "/contracts/page": [
+      "static/chunks/webpack-96bde12ce23f767a.js",
+      "static/chunks/5b8f0dd8-0b7e1dd47e2a464c.js",
+      "static/chunks/749-39e755d29f953c93.js",
+      "static/chunks/main-app-5935754a906046d8.js",
+      "static/chunks/411-74b2a502b45b9a7c.js",
+      "static/chunks/app/contracts/page-d0e00df1fadb95d2.js"
+    ]
+  }
+}

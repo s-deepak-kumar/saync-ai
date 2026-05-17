@@ -15,6 +15,7 @@ import { existsSync, unlinkSync } from 'node:fs';
 import { spawn, spawnSync } from 'node:child_process';
 import { createInterface } from 'node:readline/promises';
 import { loadConfig } from './config.mjs';
+import { loadDotenv } from './dotenv.mjs';
 import { startAppProbe } from './probe.mjs';
 import { startWatcher } from './watcher.mjs';
 
@@ -68,8 +69,13 @@ async function cmdStart() {
   const statusFile = resolve(cwd, '.saync/app-status.json');
 
   // Surface config to the Next process via env. The /api/system route
-  // reads these at request time.
+  // reads these at request time. We also auto-load `${cwd}/.env` so a
+  // BYOK LLM (WATSONX_*, OPENAI_API_KEY, ANTHROPIC_API_KEY) just works
+  // without the user having to `export` anything in their shell first.
+  // Explicit shell values still win over .env per the dotenv convention.
+  const dotenv = loadDotenv(cwd);
   const env = {
+    ...dotenv,
     ...process.env,
     SAYNC_MODE: config.mode,
     SAYNC_APP_URL: config.appUrl,
@@ -78,6 +84,13 @@ async function cmdStart() {
     SAYNC_MIGRATIONS_FOLDER: resolve(DASHBOARD_ROOT, 'drizzle'),
     PORT: String(config.port),
   };
+  const llmKeys = Object.keys(dotenv).filter((k) =>
+    k === 'WATSONX_API_KEY' || k === 'WATSONX_PROJECT_ID' ||
+    k === 'OPENAI_API_KEY'  || k === 'ANTHROPIC_API_KEY',
+  );
+  if (llmKeys.length > 0) {
+    console.log(`[saync] loaded .env (${llmKeys.length} LLM-related key${llmKeys.length === 1 ? '' : 's'})`);
+  }
 
   // Two boot paths:
   //   - Published (.next/standalone/server.js exists): run the prebuilt

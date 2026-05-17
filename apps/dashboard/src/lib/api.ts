@@ -127,6 +127,22 @@ export interface RunDetail extends Run {
   flows: FlowWithSteps[];
 }
 
+export interface ProductionViolation {
+  id: string;
+  contractName: string;
+  componentName: string;
+  errorMessage: string;
+  expectedValue: string | null;
+  observedValue: string | null;
+  sessionId: string;
+  userAgent: string;
+  viewportWidth: number;
+  viewportHeight: number;
+  url: string;
+  timestamp: string;
+  createdAt: string;
+}
+
 async function get<T>(path: string): Promise<T> {
   const res = await fetch(`${BACKEND_URL}${path}`, { cache: 'no-store' });
   if (!res.ok) throw new Error(`GET ${path} → HTTP ${res.status}`);
@@ -166,4 +182,13 @@ export const api = {
   },
 
   issueDetail: (issueId: string) => get<IssueDetail>(`/api/issues/${issueId}`),
+
+  violations: (opts: { since?: string; contract?: string; limit?: number } = {}) => {
+    const params = new URLSearchParams();
+    if (opts.since)    params.set('since', opts.since);
+    if (opts.contract) params.set('contract', opts.contract);
+    if (opts.limit)    params.set('limit', String(opts.limit));
+    const qs = params.toString();
+    return get<ProductionViolation[]>(`/api/violations${qs ? `?${qs}` : ''}`);
+  },
 };

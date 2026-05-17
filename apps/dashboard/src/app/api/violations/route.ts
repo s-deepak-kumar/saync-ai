@@ -29,6 +29,12 @@ export async function GET(req: NextRequest) {
   const db = getDb();
   const since = req.nextUrl.searchParams.get('since');
   const contract = req.nextUrl.searchParams.get('contract');
+  // Default high enough that client-side clustering covers a meaningful
+  // window without paging. Cap to keep the JSON response bounded.
+  const limit = Math.min(
+    Math.max(parseInt(req.nextUrl.searchParams.get('limit') ?? '1000', 10), 1),
+    5000,
+  );
 
   const conditions = [];
   if (since) conditions.push(gte(productionViolations.timestamp, since));
@@ -37,7 +43,7 @@ export async function GET(req: NextRequest) {
   const rows = await db.query.productionViolations.findMany({
     where: conditions.length > 0 ? and(...conditions) : undefined,
     orderBy: [desc(productionViolations.timestamp)],
-    limit: 100,
+    limit,
   });
   return NextResponse.json(rows);
 }

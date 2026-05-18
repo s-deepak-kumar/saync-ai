@@ -2,9 +2,9 @@
 
 **Verify what your app should do.** Declare contracts on your UI components, run a Playwright-driven agent that drives them, see failures in a Sentry-style dashboard — all inside your repo. No SaaS, no signup, no telemetry. MIT licensed.
 
-[![Saync — demo](https://img.youtube.com/vi/qVa-290EX5U/maxresdefault.jpg)](https://youtu.be/qVa-290EX5U)
+[![Saync — demo](https://img.youtube.com/vi/cJ6ZeytcdPU/maxresdefault.jpg)](https://youtu.be/cJ6ZeytcdPU)
 
-> ▶ Watch the demo on YouTube.
+> ▶ Watch full demo on YouTube.
 
 ```bash
 npm install --save-dev saync-web
